@@ -28,7 +28,9 @@ var defaultLogger *zap.Logger
 
 func init() {
 	var err error
-	defaultLogger, err = zap.NewDevelopment()
+	defaultLogger, err = zap.NewDevelopment(
+		zap.AddCallerSkip(1),
+	)
 	if err != nil {
 		panic(err)
 	}
