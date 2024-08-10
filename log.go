@@ -28,9 +28,8 @@ var defaultLogger *zap.Logger
 
 func init() {
 	var err error
-	defaultLogger, err = zap.NewDevelopment(
-		zap.AddCallerSkip(1),
-	)
+	developmentConfig := zap.NewDevelopmentConfig()
+	defaultLogger, err = developmentConfig.Build(zap.AddCallerSkip(1))
 	if err != nil {
 		panic(err)
 	}
@@ -41,9 +40,15 @@ func SetLevel(level Level) {
 		panic("defaultLogger is nil")
 	}
 	if zapLevel, ok := levelToZapLevel[level]; ok {
-		defaultLogger.Core().Enabled(zapLevel)
+		var err error
+		developmentConfig := zap.NewDevelopmentConfig()
+		developmentConfig.Level = zap.NewAtomicLevelAt(zapLevel)
+		defaultLogger, err = developmentConfig.Build(zap.AddCallerSkip(1))
+		if err != nil {
+			panic(err)
+		}
 	} else {
-		panic("unknow log level")
+		panic("unknown log level")
 	}
 }
 
