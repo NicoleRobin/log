@@ -2,7 +2,6 @@ package log
 
 import (
 	"fmt"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -27,11 +26,16 @@ var levelToZapLevel = map[Level]zapcore.Level{
 var defaultLogger *zap.Logger
 
 func newConfig() zap.Config {
-	logConfig := zap.NewProductionConfig()
-	logConfig.Encoding = "console"
-	logConfig.OutputPaths = []string{"stdout"}
-	logConfig.ErrorOutputPaths = []string{"stdout"}
-	return logConfig
+	encoderConf := zap.NewProductionEncoderConfig()
+	// encoderConf.EncodeTime = zapcore.TimeEncoderOfLayout(time.DateTime)
+	encoderConf.EncodeTime = zapcore.RFC3339TimeEncoder
+
+	logConf := zap.NewProductionConfig()
+	logConf.EncoderConfig = encoderConf
+	logConf.Encoding = "console"
+	logConf.OutputPaths = []string{"stdout"}
+	logConf.ErrorOutputPaths = []string{"stdout"}
+	return logConf
 }
 
 func newLogger(config zap.Config) *zap.Logger {
