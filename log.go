@@ -26,13 +26,26 @@ var levelToZapLevel = map[Level]zapcore.Level{
 
 var defaultLogger *zap.Logger
 
-func init() {
-	var err error
-	developmentConfig := zap.NewDevelopmentConfig()
-	defaultLogger, err = developmentConfig.Build(zap.AddCallerSkip(1))
+func newConfig() zap.Config {
+	logConfig := zap.NewProductionConfig()
+	logConfig.Encoding = "console"
+	logConfig.OutputPaths = []string{"stdout"}
+	logConfig.ErrorOutputPaths = []string{"stdout"}
+	return logConfig
+}
+
+func newLogger(config zap.Config) *zap.Logger {
+	logger, err := config.Build(zap.AddCallerSkip(1))
 	if err != nil {
 		panic(err)
 	}
+	return logger
+}
+
+func init() {
+	logConfig := newConfig()
+	logConfig.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	defaultLogger = newLogger(logConfig)
 }
 
 func SetLevel(level Level) {
@@ -40,13 +53,9 @@ func SetLevel(level Level) {
 		panic("defaultLogger is nil")
 	}
 	if zapLevel, ok := levelToZapLevel[level]; ok {
-		var err error
-		developmentConfig := zap.NewDevelopmentConfig()
-		developmentConfig.Level = zap.NewAtomicLevelAt(zapLevel)
-		defaultLogger, err = developmentConfig.Build(zap.AddCallerSkip(1))
-		if err != nil {
-			panic(err)
-		}
+		logConfig := newConfig()
+		logConfig.Level = zap.NewAtomicLevelAt(zapLevel)
+		defaultLogger = newLogger(logConfig)
 	} else {
 		panic("unknown log level")
 	}
