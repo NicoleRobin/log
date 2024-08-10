@@ -13,6 +13,6 @@ func main() {
 	log.Warn("first warn log")
 	log.Error("first error log")
 
-	log.SetLevel(log.LevelDebug)
+	log.SetLevel(log.LevelInfo)
 	log.Debug("after set_level(debug)")
 }
